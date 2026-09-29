@@ -226,7 +226,7 @@ async def test_pwm_duty(dut):
     dut._log.info("testing output with 100 percent duty cycle")
     await send_spi_transaction(dut, 1, 0x04, 0xFF)
     await ClockCycles(dut.clk, 5000)
-    assert (int(dut.uo_out.value) & 0x01) == 0, "expect first output to be 0 as well"
+    assert (int(dut.uo_out.value) & 0x01) == 1, "expect first output to be 1"
 
     dut._log.info("testing output with 50 percent duty cycle")
     await send_spi_transaction(dut, 1, 0x04, 0x80)
