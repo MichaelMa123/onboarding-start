@@ -198,27 +198,57 @@ async def test_pwm_duty(dut):
     clock = Clock(dut.clk, 100, units="ns")
     cocotb.start_soon(clock.start())
     dut._log.info("Reset")
-    dut.ena.value = 0
+    dut.ena.value = 1
     dut.ui_in.value = ui_in_logicarray(1, 0, 0)
     dut.rst_n.value = 0
     await ClockCycles(dut.clk, 5)
     dut.rst_n.value = 1
     await ClockCycles(dut.clk, 5)
 
-    await send_spi_transaction(dut, 1, 0x00, 0x01)
-    await send_spi_transaction(dut, 1, 0x02, 0x01)
+    await send_spi_transaction(dut, 1, 0x00, 0x00)
+    await send_spi_transaction(dut, 1, 0x01, 0x00)
+    await send_spi_transaction(dut, 1, 0x02, 0xff)
+    await send_spi_transaction(dut, 1, 0x03, 0xff)
     # set zero percent duty cycle?
-    dut._log.info("testing output with zero percent duty cycle and disabled")
+    dut._log.info("testing output with zero percent duty cycle when enable is off")
     await send_spi_transaction(dut, 1, 0x04, 0x00)
     await ClockCycles(dut.clk, 5000)
     assert (int(dut.uo_out.value) & 0x01) == 0, "expect first output to be 0"
-    dut._log.info("testing output with 100 percent duty cycle")
+    dut._log.info("testing output with 100 percent duty cycle when enable is off")
+
     await send_spi_transaction(dut, 1, 0x04, 0xFF)
     await ClockCycles(dut.clk, 5000)
     assert (int(dut.uo_out.value) & 0x01) == 0, "expect first output to be 0 as well"
 
+    await send_spi_transaction(dut, 1, 0x00, 0xff)
+    await ClockCycles(dut.clk, 10)
+    await send_spi_transaction(dut, 1, 0x01, 0xff)
+    await ClockCycles(dut.clk, 10)
+    await send_spi_transaction(dut, 1, 0x02, 0x00)
+    await ClockCycles(dut.clk, 10)
+    await send_spi_transaction(dut, 1, 0x03, 0x00)
+    await ClockCycles(dut.clk, 10)
+    dut._log.info("testing output with zero percent duty cycle when enable is on and PWM Mode Bit is zero")
+    await send_spi_transaction(dut, 1, 0x04, 0x00)
+    await ClockCycles(dut.clk, 5000)
+    assert (int(dut.uo_out.value) & 0x01) == 1, "expect first output to be 1"
+    dut._log.info("testing output with 100 percent duty cycle when enable is off")
+
+    await send_spi_transaction(dut, 1, 0x04, 0xFF)
+    await ClockCycles(dut.clk, 5000)
+    assert (int(dut.uo_out.value) & 0x01) == 1, "expect first output to be 1 as well"
+
+
+
+    await send_spi_transaction(dut, 1, 0x00, 0xff)
+    await ClockCycles(dut.clk, 10)
+    await send_spi_transaction(dut, 1, 0x01, 0xff)
+    await ClockCycles(dut.clk, 10)
+    await send_spi_transaction(dut, 1, 0x02, 0xff)
+    await ClockCycles(dut.clk, 10)
+    await send_spi_transaction(dut, 1, 0x03, 0xff)
+    await ClockCycles(dut.clk, 10)
     dut._log.info("testing output with zero percent duty cycle and enabled")
-    dut.ena.value = 1
     await ClockCycles(dut.clk, 10)
     await send_spi_transaction(dut, 1, 0x04, 0x00)
     await ClockCycles(dut.clk, 5000)
