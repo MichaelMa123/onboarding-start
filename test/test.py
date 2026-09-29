@@ -230,7 +230,7 @@ async def test_pwm_duty(dut):
     await ClockCycles(dut.clk, 10)
     dut._log.info("testing output with zero percent duty cycle when enable is on and PWM Mode Bit is zero")
     await send_spi_transaction(dut, 1, 0x04, 0x00)
-    await ClockCycles(dut.clk, 5000)
+    await ClockCycles(dut.clk, 5000) 
     assert (int(dut.uo_out.value) & 0x01) == 1, "expect first output to be 1"
     dut._log.info("testing output with 100 percent duty cycle when enable is off")
 
