@@ -194,4 +194,46 @@ async def test_pwm_freq(dut):
 @cocotb.test()
 async def test_pwm_duty(dut):
     # Write your test here
+    dut._log.info("Start pwm_freq test")
+    clock = Clock(dut.clk, 100, units="ns")
+    cocotb.start_soon(clock.start())
+    dut._log.info("Reset")
+    dut.ena.value = 1
+    dut.ui_in.value = ui_in_logicarray(1, 0, 0)
+    dut.rst_n.value = 0
+    await ClockCycles(dut.clk, 5)
+    dut.rst_n.value = 1
+    await ClockCycles(dut.clk, 5)
+
+    await send_spi_transaction(dut, 1, 0x00, 0x01)
+    await send_spi_transaction(dut, 1, 0x02, 0x01)
+    # set zero percent duty cycle?
+    dut._log.info("testing output with zero percent duty cycle")
+    await send_spi_transaction(dut, 1, 0x04, 0x00)
+    await ClockCycles(dut.clk, 5000)
+    assert (int(dut.uo_out.value) & 0x01) == 0, "expect first output to be 0"
+    dut._log.info("testing output with 100 percent duty cycle")
+    await send_spi_transaction(dut, 1, 0x04, 0xFF)
+    await ClockCycles(dut.clk, 5000)
+    assert (int(dut.uo_out.value) & 0x01) == 1, "expect first output to be 1"
+
+    dut._log.info("testing output with 50 percent duty cycle")
+    await send_spi_transaction(dut, 1, 0x04, 0x80)
+    
+    await wait_for_bit_edge(dut, dut.uo_out, 0, rising=True)
+    t_rise1 = cocotb.utils.get_sim_time(units="sec")
+    
+    await wait_for_bit_edge(dut, dut.uo_out, 0, rising=False)
+    t_fall = cocotb.utils.get_sim_time(units="sec")
+    
+    await wait_for_bit_edge(dut, dut.uo_out, 0, rising=True)
+    t_rise2 = cocotb.utils.get_sim_time(units="sec")
+
+    period = t_rise2 - t_rise1
+    high_time = t_fall - t_rise1
+    measured_duty = (high_time / period) * 100
+    expected_duty = 50.0
+    dut._log.info(f"tested duty cycle: {measured_duty:.2f}%")
+    assert abs(measured_duty - expected_duty) <= 1.0, f"expected ~{expected_duty}%, tested {measured_duty:.2f}%"
+    
     dut._log.info("PWM Duty Cycle test completed successfully")
