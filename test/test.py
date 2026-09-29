@@ -226,7 +226,7 @@ async def test_pwm_duty(dut):
     await wait_for_bit_edge(dut, dut.uo_out, 0, rising=False)
     t_fall = cocotb.utils.get_sim_time(units="sec")
     
-    await wait_for_bit_edge(dut, dut.uo_out, 0, rising=True)
+    await wait_for_bit_edge(dut, dut.uo_out, 0, rising=True) 
     t_rise2 = cocotb.utils.get_sim_time(units="sec")
 
     period = t_rise2 - t_rise1
