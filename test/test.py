@@ -152,6 +152,31 @@ async def test_spi(dut):
 @cocotb.test()
 async def test_pwm_freq(dut):
     # Write your test here
+    dut._log.info("Start pwm_freq test")
+    clock = Clock(dut.clk, 100, units="ns")
+    cocotb.start_soon(clock.start())
+    dut._log.info("Reset")
+    dut.ena.value = 1
+    dut.ui_in.value = ui_in_logicarray(1, 0, 0)
+    dut.rst_n.value = 0
+    await ClockCycles(dut.clk, 5)
+    dut.rst_n.value = 1
+    await ClockCycles(dut.clk, 5)
+
+    await send_spi_transaction(dut, 1, 0x00, 0x01)
+    await send_spi_transaction(dut, 1, 0x02, 0x01)
+    dut._log.info("Set 50% duty cycle")
+    await send_spi_transaction(dut, 1, 0x04, 0x80)
+    await wait_for_bit_edge(dut, dut.uo_out, 0, rising=True)
+    t1 = cocotb.utils.get_sim_time(units="sec")
+    await wait_for_bit_edge(dut, dut.uo_out, 0, rising=True)
+    t2 = cocotb.utils.get_sim_time(units="sec")
+
+    
+    period = t2 - t1
+    hz = 1 / period
+    dut._log.info(f"Measured: {frequency:.2f} Hz")
+    assert 2970 <= frequency <= 3030, f"Expected around 3000 Hz, got {frequency:.2f} Hz"
     dut._log.info("PWM Frequency test completed successfully")
 
 
