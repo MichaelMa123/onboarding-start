@@ -186,8 +186,8 @@ async def test_pwm_freq(dut):
     
     period = t2 - t1
     hz = 1 / period
-    dut._log.info(f"Measured: {frequency:.2f} Hz")
-    assert 2970 <= frequency <= 3030, f"Expected around 3000 Hz, got {frequency:.2f} Hz"
+    dut._log.info(f"Measured: {hz:.2f} Hz")
+    assert 2970 <= hz <= 3030, f"Expected around 3000 Hz, got {hz:.2f} Hz"
     dut._log.info("PWM Frequency test completed successfully")
 
 
