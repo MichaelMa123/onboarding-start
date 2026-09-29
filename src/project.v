@@ -99,7 +99,7 @@ always @(posedge clk or negedge rst_n) begin
 end
 
 wire nCS_rising  = !nCS_s2 & nCS_s1;
-wire SCLK_rising = SCLK_s2 & !SCLK_s1;
+wire SCLK_rising = SCLK_s1 & !SCLK_s2;
 
 always @(posedge clk or negedge rst_n) begin
   if(!rst_n) begin
