@@ -206,9 +206,13 @@ async def test_pwm_duty(dut):
     await ClockCycles(dut.clk, 5)
 
     await send_spi_transaction(dut, 1, 0x00, 0x00)
+    await ClockCycles(dut.clk, 10)
     await send_spi_transaction(dut, 1, 0x01, 0x00)
+    await ClockCycles(dut.clk, 10)
     await send_spi_transaction(dut, 1, 0x02, 0xff)
+    await ClockCycles(dut.clk, 10)
     await send_spi_transaction(dut, 1, 0x03, 0xff)
+    await ClockCycles(dut.clk, 10)
     # set zero percent duty cycle?
     dut._log.info("testing output with zero percent duty cycle when enable is off")
     await send_spi_transaction(dut, 1, 0x04, 0x00)
