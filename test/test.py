@@ -150,7 +150,6 @@ async def test_spi(dut):
     dut._log.info("SPI test completed successfully")
 
 async def wait_for_bit_edge(dut, signal, bit, rising=True):
-    
     prev = (int(signal.value) >> bit) & 1
     while True:
         await RisingEdge(dut.clk)
@@ -160,6 +159,7 @@ async def wait_for_bit_edge(dut, signal, bit, rising=True):
         if not rising and prev == 1 and curr == 0:
             return
         prev = curr
+
 @cocotb.test()
 async def test_pwm_freq(dut):
     # Write your test here
